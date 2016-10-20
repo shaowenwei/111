@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+  <head>
+  <div align="center">
+  {% if session['username']%}
+    <p>
+    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit your account</a>
+    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My albums</a>
+    <a id="nav_home¨" href="{{url_for('main.main_route')}}">Home</a>
+    <form action="{{url_for('main.main_logout')}}" method="post">
+      <input id="nav_logout" type="submit" value="Logout">
+    </form>
+    </p>
+  {% endif %}
+  </div>
+  </head>
+  {% if edit  %}
+    <div align="center">
+    <h1>{{name}}'s ALBUMS</h1>
+    <p class="important" style="font-family: Arial">
+        Welcome <strong>{{name}}</strong>!
+    </p>
+    <table width="300"> 
+      <tr>
+        <td><h1 style="font-size: 20px"></h1></td>
+        <td><h1 style="font-size: 20px"></h1></td>
+        <td><h1 style="font-size: 20px"></h1></td>
+      </tr>
+    {% set i=0 %}
+    {% for t in title %} 
+      <tr>
+        <td> <a id="album_{{album[i]}}_link" href="{{ url_for('album.album_route', albumid=album[i]) }}"><h1 style="font-size: 20px">{{t}}</h1></a></td>
+          <td>
+        <form action="{{url_for('album.album_edit_route')}}" method="get">  
+            <input style="display:none" name="albumid" value="{{album[i]}}">  
+            <input type="submit" value="Edit">
+          </td>
+        </form>
+        <form action="{{url_for('albums.albums_edit_route')}}" method="post">
+          <td>
+            <input style="display:none" name="op" value="delete">
+            <input style="display:none" name="albumid" value="{{album[i]}}">
+            <input id="delete_album_{{album[i]}}" type="submit" value="Delete">
+          </td>
+        </form>
+      </tr> 
+        {% set i=i+1 %}
+    {% endfor %}
+    <tr>
+    <form action="{{url_for('albums.albums_edit_route')}}" method="post">
+        <td>
+          <h1 style="font-size: 15px">New Album:</h1>
+          <input id="album_add_name" type="text" name="title" value="New album">
+        </td>
+        <td>
+          <input type="text" style="display:none" name="op" value="add">
+          <input type="text" style="display:none" name="username" value="{{name}}">
+          <input id="album_add_submit" type="submit" value="Add"></td>
+    </form>
+            <td></td>
+      </tr>
+    </table>
+    <p style="font-family: Arial; font-size: 20px">
+    <a id = "parent_index" href="{{url_for('main.main_route')}}">back to login</a>
+    </p></div>
+  {% endif %}
+  {% if edit == false %}
+
+      <div align="center">
+    <h1>{{name}}'s ALBUMS</h1>
+    <p class="important" style="font-family: Arial">
+      {% if session['username'] %}
+        Welcome <strong>{{name}}</strong>!
+      {% else %}
+        Welcome tourist!
+      {% endif %}
+    </p>
+     <p>
+    {% set i=0 %}
+    {% for t in title %} 
+        <a id="album_{{album[i]}}_link" href="{{ url_for('album.album_route', albumid=album[i]) }}"><h1 style="font-size: 20px">{{t}}</h1></a>
+        {% set i=i+1 %}
+    {% endfor %} 
+    <br><br><br><br>
+      {% if session['username'] %}
+        <p style="font-family: Arial; font-size: 20px">
+          <a id="user_albums_edit_{{name}}" href="{{url_for('albums.albums_edit_route')}}">Edit your albums</a>
+       </p> 
+      {% endif %}      
+        <p style="font-family: Arial; font-size: 20px">
+          <a id = "parent_index" href="{{url_for('main.main_route')}}">back to login</a>
+       </p>
+       </div>
+  {% endif %}
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div align="center">
+  <head>
+  <style> p.error {color:green;}</style>
+  {% if session['username']%}
+    <p>
+    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit your account</a>
+    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My albums</a>
+    <a id="nav_home" href="{{url_for('main.main_route')}}">Home</a>
+    <form action="{{url_for('main.main_logout')}}" method="post">
+      <input id="nav_logout" type="submit" value="Logout">
+    </form>
+    </p>
+  {% endif %}
+  </head>
+  <body>
+  <fieldset>
+    <p>Update your information:</p>
+
+    <form action = "{{url_for('main.main_user_edit')}}" method = "post">
+      <p>firstname:<input id="update_firstname_input" type = "text" name = "firstname"/></p>
+      <p><input id="update_firstname_submit" type = "submit" value = "update" /></p>
+    </form>
+
+    <form action = "{{url_for('main.main_user_edit')}}" method = "post">
+      <p>lastname:<input id="update_lastname_input" type = "text" name = "lastname"/></p>
+      <p><input id="update_lastname_submit" type = "submit" value = "update" /></p>
+    </form>
+
+    <form action = "{{url_for('main.main_user_edit')}}" method = "post">
+      <p>email:<input id="update_email_input" type = "text" name = "email"/></p>
+      <p><input id="update_email_submit" type = "submit" value = "update" /></p>
+    </form>
+
+    <form action = "{{url_for('main.main_user_edit')}}" method = "post">
+      <p>password:<input id="update_password1_input" type = "text" name = "pw1"/></p>
+      <p>verify your password:<input id="update_password2_input" type = "text" name = "pw2"/></p>
+      <p><input id="update_password_submit" type = "submit" value = "update" /></p>
+    </form>
+
+     {%if error[0]==1 %}
+          <p class="error">Firstname must be no longer than 20 characters</p>
+      {%endif%}
+      {%if error[1]==1 %}
+          <p class="error">Lastname must be no longer than 20 characters</p>
+      {%endif%}
+      {%if error[2]==1 %}
+          <p class="error">Passwords must be at least 8 characters long</p>
+      {%endif%}
+      {%if error[3]==1 %}
+          <p class="error">Passwords must contain at least one letter and one number</p>
+      {%endif%}
+      {%if error[4]==1 %}
+          <p class="error">Passwords may only contain letters, digits and underscores</p>
+      {%endif%}
+      {% if error[5]%}
+         <p class="error">passwords do not match</p>
+      {% endif %}
+      {% if error[6]%}
+         <p class="error">Email address must be valid</p>
+      {% endif %}
+      {% if error[7]%}
+         <p class="error">Email must be no longer than 40 characters</p>
+      {% endif %}
+          
+  </fieldset>
+  </body>
+</div>
+ 
+
+
+{% endblock%}

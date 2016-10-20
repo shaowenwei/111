@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<div align="center">
+  <head>
+  <style> p.error {color:red;}</style>
+  </head>
+  <body>
+  <form action = "{{url_for('main.main_user')}}" method = "post">
+    <fieldset>
+      <p>Please sign up:</p>
+      <p>username:<input id="new_username_input" type = "text" name = "username"/></p>
+      <p>firstname:<input id="new_firstname_input" type = "text" name = "firstname"/></p>
+      <p>lastname:<input id="new_lastname_input" type = "text" name = "lastname"/></p>
+      <p>password:<input id="new_password1_input" type = "text" name = "pw1"/></p>
+      <p>verify your password:<input id="new_password2_input" type = "text" name = "pw2"/></p>
+      <p>email address:<input id="new_email_input" type = "text" name = "email"/></p>
+      <p><input id="new_submit" type = "submit" value = "submit" /></p>
+        {%if error[0]%}
+          <p class="error">username may not be left blank</p>
+        {%endif%}
+        {%if error[1]%}
+          <p class="error">firstname may not be left blank</p>
+        {%endif%}
+        {%if error[2]%}
+          <p class="error">lastname may not be left blank</p>
+        {%endif%}
+        {%if error[3]%}
+          <p class="error">password may not be left blank</p>
+        {%endif%}
+        {%if error[4]%}
+          <p class="error">email may not be left blank</p>
+        {%endif%}
+        {%if error[5]%}
+          <p class="error">This username is taken</p>
+        {%endif%}
+        {%if error[6]%}
+          <p class="error">The username must be at least three characters long</p>
+        {%endif%}
+        {%if error[7]%}
+          <p class="error">Username must be no longer than 20 characters</p>
+        {%endif%}
+        {%if error[8]%}
+          <p class="error">The username can only have letters, digits and underscores</p>
+        {%endif%}
+        {% if error[9]%}
+         <p class="error">Firstname must be no longer than 20 characters</p>
+        {% endif %}
+        {% if error[10]%}
+         <p class="error">Lastname must be no longer than 20 characters</p>
+        {% endif %}
+        {% if error[11]%}
+         <p class="error">Passwords must be at least 8 characters long</p>
+        {% endif %}
+
+        {% if error[12]%}
+         <p class="error">Passwords must contain at least one letter and one number</p>
+        {% endif %}
+
+        {% if error[13]%}
+         <p class="error">Passwords may only contain letters, digits and underscores</p>
+        {% endif %}
+        {% if error[14]%}
+         <p class="error">Passwords do not match</p>
+        {% endif %}
+        {% if error[15]%}
+         <p class="error">Email address must be valid</p>
+        {% endif %}
+        {% if error[16]%}
+         <p class="error">Email must be no longer than 40 characters</p>
+        {% endif %}
+
+          
+  </fieldset>
+  </form>          
+  
+  </body>
+</div>
+ 
+
+
+{% endblock%}

@@ -1,0 +1,114 @@
+<head>
+  <div align="center">
+  {% if session['username']%}
+    <p>
+    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit your account</a>
+    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My albums</a>
+    <a id="nav_home" href="{{url_for('main.main_route')}}">Home</a>
+    <form action="{{url_for('main.main_logout')}}" method="post">
+      <input id="nav_logout" type="submit" value="Logout">
+    </form>
+    </p>
+  {% endif %}
+  </div>
+  </head>
+{% extends "base.html" %}
+{% block content %}
+  {% if edit == false %}
+    <div align="center">
+      <h1>ALBUM: {{title}}</h1>
+      <p>
+        {% for file,link in links %}
+          <a id = "pic_{{link}}_link" href="{{url_for('pic.pic_route',picid=link)}}">
+            <img src="{{url_for('static', filename = '%s' %file)}}" width="10%" height="10%">
+          </a>
+        {% endfor %}
+      </p>
+      <p style="font-family: Arial; font-size: 20px">
+      {% if session['username']%}
+        <a id = "parent_albums" href="{{url_for('albums.albums_route')}}">back to albums
+        </a>
+      {% else %}
+        <a id = "parent_albums" href="{{url_for('albums.albums_route',username=username)}}">back to albums
+        </a>
+      {% endif %}
+      </p>
+    </div>
+  {% endif %}
+  {% if edit %}
+   <div align="center">
+    <h1>ALBUM: {{title}}</h1>
+    
+    <!-- P2 code, adding forms for access, grant, revoke -->
+    <table>
+        <tr><td align="center">
+        <p><b>Current Access Type:</b> {{acc}}</p>
+        <form action="{{url_for('album.album_edit_route')}}" method="post">
+            <input style="display:none" name="op" value="access" />
+            <input id="album_edit_public_radio" type="radio" name="access" value="public" />Public<br />
+            <input id="album_edit_private_radio" type="radio" name="access" value="private" />Private<br />
+            <input style="display:none" name="albumid" value="{{albumid}}">
+            <input id="album_edit_access_submit" type="submit" value="Submit" />
+        </form></td>
+        </tr>
+        {% if acc=='private' %}
+        <tr>
+        <td align="center"><h4>Update User Access</h4></td>
+        </tr>
+        {% for name in names%}
+        <tr><td align="center">
+        <form action="{{url_for('album.album_edit_route')}}" method="post">
+            <input style="display:none" name="op" value="revoke">
+            <input style="display:none" name="username" value="{{name}}">
+            <input style="display:none" name="albumid" value="{{albumid}}">
+            {{name}}&nbsp&nbsp&nbsp <input id="album_edit_revoke_{{name}}" type="submit" value="Revoke">
+        </form></td>
+        </tr>
+        {% endfor %}
+        <tr>
+        <th><form action="{{url_for('album.album_edit_route')}}" method="post">
+        <input style="display:none" name="op" value="grant">
+        <input style="display:none" name="albumid" value="{{albumid}}">
+        Add User: <input id="album_edit_grant_input" type="text" name="username" value="username">
+        <input id="album_edit_grant_submit" type="submit" value="Add">
+        </form>
+        </th>
+        </tr>
+        {% endif %}
+    </table>
+    <!-- END OF P2 code -->
+    
+    <table>    
+    <tr>
+    {% for file,picid in links %}
+      <td><img src="{{url_for('static', filename = '%s' %file)}}" width="10%" height="10%"></td>
+      <td>
+      <form id = "pic_{{link}}_link" action="{{url_for('album.album_edit_route')}}" method="post">
+        <input style="display:none" name="op" value="delete">
+        <input style="display:none" name="picid" value="{{picid}}">
+        <input style="display:none" name="albumid" value="{{albumid}}">
+        <input id="delete_pic_{{picid}}" type="submit" value="Delete">
+      </td>
+      </form>
+    </tr>
+  {% endfor %}
+    <tr>
+    <form enctype="multipart/form-data" action="{{url_for('album.album_edit_route')}}" method="post">
+       <td><h1 style="font-size: 15px">Add picture:</h1>
+          <input id="file_input" name = "file" type="file">
+       </td>
+       <td>
+          <input style="display:none" name="op" value="add">
+          <input style="display:none" name="albumid" value="{{albumid}}">
+          <input id="file_submit" type="submit" value="Add">
+       </td>
+     </form>
+    </tr>
+  </table>
+      <p style="font-family: Arial; font-size: 20px">
+        <a id = "parent_albums" href="{{url_for('albums.albums_route')}}">back to albums
+        </a>
+      </p>
+  </div>
+{% endif %}
+{% endblock %}   

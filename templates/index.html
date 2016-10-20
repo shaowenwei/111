@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+ <div align="center">
+<header>
+  <title> Homepage of online album</title>
+  <meta name="author" content="group75">
+  <meta name="description" content="online album">
+  {% if session['username']%}
+    {% for fn, ln, user in zips %}
+      {% if user==session['username'] %}
+      <p style="font-size: 20px"> Logged in as <strong>{{fn}} {{ln}} </strong></p>
+      {% endif %}
+    {% endfor %}
+    <p>
+    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit your account</a>
+    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My albums</a>
+    <a id="nav_home" href="{{url_for('main.main_route')}}">Home</a>
+    <form action="{{url_for('main.main_logout')}}" method="post">
+      <input id="nav_logout" type="submit" value="Logout">
+    </form>
+    </p>
+</header>
+<body>
+  <br><br>
+    {% for albumid, title in link %}
+    <a id="album_{{albumid}}" href="{{url_for('album.album_route', albumid = albumid)}}"><h1 style="font-size: 20px">{{title}}</h1></a>
+    {% endfor %}
+  {% else %}
+<body>
+    <h1 style="font-size:40px ; font-family:Arial">Online Album</h1>
+    <p style="font-size:20px; font-family:Arial">
+      Welcome!
+    </p>
+    <p>Login or Create your account:</p>
+
+      <a id="home_login" href="{{url_for('main.main_login')}}"><h1 style="font-size: 20px">login</h1></a>
+
+      <a id="home_user_create" href="{{url_for('main.main_user')}}"><h1 style="font-size: 20px">create account</h1></a>
+      <br><br>
+      <p>Public Albums:</p>
+      {% for albumid, username, title in links %}
+        <a id="album_{{albumid}}" href="{{url_for('albums.albums_route', username = username)}}"><h1 style="font-size: 20px">{{title}}</h1></a>
+      {% endfor %}
+    {% endif %}
+</body>
+<footer>
+  <br><br><br><br>
+  <p>All rights reserved by EECS485 Group 75</p>
+</footer></div>
+{% endblock %}

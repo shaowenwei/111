@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<head>
+  <div align="center">
+  {% if session['username']%}
+    <p>
+    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit your account</a>
+    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My albums</a>
+    <a id="nav_home" href="{{url_for('main.main_route')}}">Home</a>
+    <form action="{{url_for('main.main_logout')}}" method="post">
+      <input id="nav_logout" type="submit" value="Logout">
+    </form>
+    </p>
+  {% endif %}
+  </div>
+</head>
+  <div align="center">
+    <h1>PICTURE</h1>
+    <p class="important">
+      Welcome!
+    </p>
+      <p>
+      <img src="{{url_for('static', filename= '%s' %file)}}">
+      </p>
+
+      <p style="font-family: Arial; font-size: 20px">
+      <nav>
+        {%if flag_prev == 0 %}
+        <a id = "prev_pic" href="{{url_for('pic.pic_prev', picid=piclist[num-1])}}">previous
+        </a>
+        {%endif%}
+        {%if flag_next == 0 %}
+        <a id = "next_pic" href="{{url_for('pic.pic_next', picid=piclist[num+1])}}">next
+        </a>
+        {%endif%}
+      </nav>
+      </p>
+      <p style="font-family: Arial; font-size: 20px">
+        <a id = "parent_album" href="{{url_for('album.album_route',albumid=albumid)}}">back to album</a>
+      </p>
+  </div>
+{% endblock %}
