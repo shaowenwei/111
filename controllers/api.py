@@ -178,11 +178,11 @@ def login():
             error={
                 "errors":[
                     {
-                        "message":"You did not provide the necessary fields", "code":"422"
+                        "message":"You did not provide the necessary fields"
                     }
                 ]
             }
-            return jsonify(error=error)
+            return jsonify(error=error),422
 
         conn = extensions.connect_to_database()
         cursor=conn.cursor()
@@ -198,11 +198,11 @@ def login():
             error={
                     "errors":[
                         {
-                            "message":"Username does not exist", "code":"404"
+                            "message":"Username does not exist"
                         }
                     ]
             }
-            return jsonify(error=error)
+            return jsonify(error=error),404
         sql='select password from User where username="%s"' %username
         cursor.execute(sql)
         row=cursor.fetchall()
@@ -226,16 +226,16 @@ def login():
         new_hash="$".join([algorithm,salt,password_hash])
         if new_hash==passdb:
             session['username']=username
-            return jsonify(error={"username":username})
+            return jsonify(user={"username":username})
         else:
             error={
                     "errors":[
                         {
-                            "message":"Password is incorrect for the specified username", "code":"422"
+                            "message":"Password is incorrect for the specified username"
                         }
                     ]
             }
-            return jsonify(error=error)
+            return jsonify(error=error),422
    
 @api.route('/api/v1/logout', methods=['POST'])
 def logout():
