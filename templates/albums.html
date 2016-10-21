@@ -1,23 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
   <head>
-  <div align="center">
-  {% if session['username']%}
-    {% for fn, ln, user in zips %}
-      {% if user==session['username'] %}
-      <p style="font-size: 20px"> Logged in as <strong>{{fn}} {{ln}} </strong></p>
-      {% endif %}
-    {% endfor %}
-    <p>
-    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit Account</a>
-    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My Albums</a>
-    <a id="nav_home¨" href="{{url_for('main.main_route')}}">Nav Home</a>
-    <form action="{{url_for('main.main_logout')}}" method="post">
-      <input id="nav_logout" type="submit" value="Logout">
-    </form>
-    </p>
-  {% endif %}
-  </div>
+  
   </head>
   {% if edit  %}
     <div align="center">
