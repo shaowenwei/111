@@ -8,14 +8,8 @@ $(function(){
       type: 'POST',
       success: function(response){
         res = JSON.parse(response);
-      
-      if(res['error'].username)
-      {
         $(location).attr('href','albums');
-      }
-      /*else
-      {$("#errors").text(res['error'].errors[0].message);}*/
-      
+     
       },
       error: function(error){
       res=JSON.parse(error.response);
