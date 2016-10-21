@@ -37,5 +37,10 @@ CREATE TABLE Contain(
 CREATE TABLE AlbumAccess(
 	albumid INT,
 	username VARCHAR(20),
-	PRIMARY KEY (albumid, username)
+	PRIMARY KEY (albumid, username),
+	FOREIGN KEY(albumid) REFERENCES Album(albumid),
+	FOREIGN KEY(username) REFERENCES User(username)
 );
+
+
+

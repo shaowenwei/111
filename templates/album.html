@@ -1,10 +1,16 @@
+
 <head>
   <div align="center">
   {% if session['username']%}
+    {% for fn, ln, user in zips %}
+      {% if user==session['username'] %}
+      <p style="font-size: 20px"> Logged in as <strong>{{fn}} {{ln}} </strong></p>
+      {% endif %}
+    {% endfor %}
     <p>
-    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit your account</a>
-    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My albums</a>
-    <a id="nav_home" href="{{url_for('main.main_route')}}">Home</a>
+    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit Account</a>
+    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My Albums</a>
+    <a id="nav_home" href="{{url_for('main.main_route')}}">Nav Home</a>
     <form action="{{url_for('main.main_logout')}}" method="post">
       <input id="nav_logout" type="submit" value="Logout">
     </form>
@@ -16,12 +22,19 @@
 {% block content %}
   {% if edit == false %}
     <div align="center">
+      <h1>USER: {{username}}</h1> 
       <h1>ALBUM: {{title}}</h1>
       <p>
-        {% for file,link in links %}
+        {% for file,link,caption,date in links %}
           <a id = "pic_{{link}}_link" href="{{url_for('pic.pic_route',picid=link)}}">
-            <img src="{{url_for('static', filename = '%s' %file)}}" width="10%" height="10%">
+            <img src="{{url_for('static', filename = 'images/%s' %file)}}" width="10%" height="10%">
           </a>
+          <br>
+          {{caption}}
+          <br>
+          {{date}}
+          <br>
+          <br>
         {% endfor %}
       </p>
       <p style="font-family: Arial; font-size: 20px">
@@ -81,9 +94,11 @@
     <table>    
     <tr>
     {% for file,picid in links %}
-      <td><img src="{{url_for('static', filename = '%s' %file)}}" width="10%" height="10%"></td>
       <td>
-      <form id = "pic_{{link}}_link" action="{{url_for('album.album_edit_route')}}" method="post">
+        <a id = "pic_{{picid}}_link" href="{{url_for('pic.pic_route',picid=picid)}}">
+        <img src="{{url_for('static', filename = 'images/%s' %file)}}" width="10%" height="10%"></td>
+      <td>
+      <form action="{{url_for('album.album_edit_route')}}" method="post">
         <input style="display:none" name="op" value="delete">
         <input style="display:none" name="picid" value="{{picid}}">
         <input style="display:none" name="albumid" value="{{albumid}}">

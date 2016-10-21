@@ -3,10 +3,15 @@
   <head>
   <div align="center">
   {% if session['username']%}
+    {% for fn, ln, user in zips %}
+      {% if user==session['username'] %}
+      <p style="font-size: 20px"> Logged in as <strong>{{fn}} {{ln}} </strong></p>
+      {% endif %}
+    {% endfor %}
     <p>
-    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit your account</a>
-    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My albums</a>
-    <a id="nav_home¨" href="{{url_for('main.main_route')}}">Home</a>
+    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit Account</a>
+    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My Albums</a>
+    <a id="nav_home¨" href="{{url_for('main.main_route')}}">Nav Home</a>
     <form action="{{url_for('main.main_logout')}}" method="post">
       <input id="nav_logout" type="submit" value="Logout">
     </form>
@@ -33,7 +38,7 @@
           <td>
         <form action="{{url_for('album.album_edit_route')}}" method="get">  
             <input style="display:none" name="albumid" value="{{album[i]}}">  
-            <input type="submit" value="Edit">
+            <input id="album_edit_{{album[i]}}_link" type="submit" value="Edit">
           </td>
         </form>
         <form action="{{url_for('albums.albums_edit_route')}}" method="post">

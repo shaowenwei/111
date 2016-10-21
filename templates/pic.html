@@ -3,12 +3,17 @@
 <head>
   <div align="center">
   {% if session['username']%}
+    {% for fn, ln, user in zips %}
+      {% if user==session['username'] %}
+      <p style="font-size: 20px"> Logged in as <strong>{{fn}} {{ln}} </strong></p>
+      {% endif %}
+    {% endfor %}
     <p>
-    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit your account</a>
-    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My albums</a>
-    <a id="nav_home" href="{{url_for('main.main_route')}}">Home</a>
+    <a id ="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit Account</a>
+    <a id = "nav_albums" href="{{url_for('albums.albums_route')}}">My Albums</a>
+    <a id = "nav_home" href="{{url_for('main.main_route')}}">Nav Home</a>
     <form action="{{url_for('main.main_logout')}}" method="post">
-      <input id="nav_logout" type="submit" value="Logout">
+      <input id = "nav_logout" type="submit" value="Logout">
     </form>
     </p>
   {% endif %}
@@ -20,17 +25,28 @@
       Welcome!
     </p>
       <p>
-      <img src="{{url_for('static', filename= '%s' %file)}}">
+      <img src="{{url_for('static', filename= 'images/%s' %file)}}">
       </p>
-
+      <br>
+      <p id="pic_{{piclist[num]}}_caption">{{caption}}</p>
+      {% if session['username']%}
+        {% if capedit %}
+            <form action="{{url_for('pic.pic_route')}}" method="post">
+              <p>New caption:<input id="pic_caption_input" type = "text" name = "caption"/></p>
+              <input style="display:none" name="op" value="caption">
+              <input style="display:none" name="picid" value="{{piclist[num]}}">
+              <input id="pic_caption_submit" type="submit" value="update">
+            </form>
+        {% endif %}
+      {% endif %}
       <p style="font-family: Arial; font-size: 20px">
       <nav>
         {%if flag_prev == 0 %}
-        <a id = "prev_pic" href="{{url_for('pic.pic_prev', picid=piclist[num-1])}}">previous
+        <a id = "prev_pic" href="{{url_for('pic.pic_route', picid=piclist[num-1])}}">previous
         </a>
         {%endif%}
         {%if flag_next == 0 %}
-        <a id = "next_pic" href="{{url_for('pic.pic_next', picid=piclist[num+1])}}">next
+        <a id = "next_pic" href="{{url_for('pic.pic_route', picid=piclist[num+1])}}">next
         </a>
         {%endif%}
       </nav>

@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 import hashlib
 
 
-album = Blueprint('album', __name__, template_folder='templates',static_folder = 'static/images')
+album = Blueprint('album', __name__, template_folder='templates',static_folder = 'static')
 
 rootdir="static/images"
 
@@ -22,7 +22,7 @@ def album_edit_route():
 		"edit": True
 	}
 	now=datetime.now()
-    
+	
         if request.method == 'POST':
             op=request.form['op']
             
@@ -41,6 +41,7 @@ def album_edit_route():
                     abort(403)
             else:
                 abort(403)
+	  
             if op == 'access':
                 acc = request.form['access']
                 sql = "update Album set access='%s' where albumid=%d" %(acc,albumid)
@@ -56,7 +57,6 @@ def album_edit_route():
                 username = request.form['username']
                 sql = 'delete from AlbumAccess where albumid=%d AND username="%s"' %(albumid, username)
                 cursor.execute(sql)
-            #END OF P2
             
             if op == 'delete':
                 picid = request.form['picid']
@@ -115,7 +115,7 @@ def album_edit_route():
             title=titles[0]
             cursor.close()
             conn.close()           
-            return redirect(url_for('album.album_edit_route', albumid=albumid))
+            return redirect(url_for('album.album_edit_route',albumid=albumid))
         if request.method == 'GET':
             albumid = request.args.get('albumid')
             if albumid is None:
@@ -148,7 +148,16 @@ def album_edit_route():
                     abort(403)
             else:
                 abort(403)
-                
+            sql2='select firstname, lastname, username from User'
+            cursor.execute(sql2)
+            rows=cursor.fetchall()
+            firstname=[]
+            lastname=[]
+            user1=[]
+            for row in rows:
+            	firstname.append(row[0])
+            	lastname.append(row[1])
+            	user1.append(row[2])   
             sql5='select access from Album where albumid=%d' %albumid
             cursor.execute(sql5)
             acc=cursor.fetchone()[0]
@@ -182,7 +191,7 @@ def album_edit_route():
                             for filename in filenames:                               
                                     if pid in filename:
                                             files.append(filename)
-            return render_template("album.html", username=user, title=title, links=zip(files,picid), albumid=albumid, acc=acc, names=names, **options)
+            return render_template("album.html", zips=zip(firstname,lastname,user1),username=user, title=title, links=zip(files,picid), albumid=albumid, acc=acc, names=names, **options)
             
     
     
@@ -239,8 +248,6 @@ def album_route():
                 cursor.close()
                 conn.close()
                 return redirect(url_for('main.main_login'))
- 
-        # END OF P2 PART
         
         sql1= 'select title from Album where albumid= %d' % albumid
         cursor.execute(sql1)
@@ -251,16 +258,37 @@ def album_route():
         rows=cursor.fetchall()
         sql3= 'select username from Album where albumid= %d ' % albumid
         cursor.execute(sql3)
-        user=cursor.fetchone()
-        cursor.close()
-        conn.close()
+        user=cursor.fetchone()[0] 
         picid=[]
+        caption=[]
+        date=[]
         for row in rows:
                 picid.append(str(row[2]))
+                caption.append(str(row[3]))
         files=[]
         for parent, dirname, filenames in os.walk(rootdir):
                 for pid in picid:
                         for filename in filenames:                               
                                 if pid in filename:
                                         files.append(filename)
-	return render_template("album.html", username=user, title=title, links=zip(files,picid), albumid=albumid, **options)
+        date=[]
+        for pid in picid:
+            sql='select date from Photo where picid ="%s"' %pid
+            cursor.execute(sql)
+            rows=cursor.fetchone()
+            for row in rows:
+                date.append(row.strftime("%B %d, %Y"))
+		
+	sql2='select firstname, lastname, username from User'
+        cursor.execute(sql2)
+        rows=cursor.fetchall()
+        firstname=[]
+        lastname=[]
+        user1=[]
+        for row in rows:
+            	firstname.append(row[0])
+            	lastname.append(row[1])
+            	user1.append(row[2])
+        cursor.close()
+        conn.close()
+	return render_template("album.html", zips=zip(firstname,lastname,user1),username=user, title=title, links=zip(files,picid,caption,date), albumid=albumid, **options)

@@ -1,10 +1,10 @@
-
 from flask import *
 import extensions
 import hashlib
+import uuid
+import re
 
-
-main = Blueprint('main', __name__, template_folder='templates', static_folder ='static/images')
+main = Blueprint('main', __name__, template_folder='templates', static_folder ='static')
 
 @main.route('/')
 def main_route():
@@ -83,19 +83,19 @@ def page_not_found(error):
 @main.route('/login', methods=['GET', 'POST'])
 def main_login():
     if request.method == 'GET':
-        return render_template("login.html", error=[0,0,0,0])
-    
+        if 'username' in session:
+            return redirect(url_for('main.main_route'))
+        else:
+            return render_template("login.html", error=[0,0,0,0])
     if request.method == 'POST':
-        username=request.form['nm']
-        password=request.form['pw']
+        username=request.form['username']
+        password=request.form['password']
         err = [0,0,0,0]
         correct = [0,0,0,0]
         if not username:
             err[0] = 1
         if not password:
             err[1] = 1
-        if err != correct:
-            return render_template("login.html", error=err)
         conn = extensions.connect_to_database()
         cursor=conn.cursor()
         sql1='select username from User'
@@ -139,130 +139,47 @@ def main_login():
             return render_template("login.html", error=err)
 
 
-@main.route('/user',methods=['POST','GET'])
+@main.route('/user')
 def main_user():
     correct=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    if request.method=='POST':
-        username=request.form['username']
-        firstname=request.form['firstname']
-        lastname=request.form['lastname']
-        password=request.form['pw1']
-        pw_verify=request.form['pw2']
-        email=request.form['email']
-        err=[]
-        
-        if username=="":
-            err.append(1)
-        else:
-            err.append(0)
-        if firstname=="":
-            err.append(1)
-        else:
-            err.append(0)
-        if lastname=="":
-            err.append(1)
-        else:
-            err.append(0)
-        if password=="":
-            err.append(1)
-        else:
-            err.append(0)
-        if email=="":
-            err.append(1)
-        else:
-            err.append(0)
-        conn = extensions.connect_to_database()
-        cursor = conn.cursor()
-        sql2='select username from User'
-        cursor.execute(sql2)
-        rows=cursor.fetchall()
-        flag=0
-        for row in rows:
-            for ro in row:
-                if username==ro:
-                    flag=flag+1        
-        if flag >=1:
-            err.append(1)
-        else:
-            err.append(0)
-        if err[0]!=1 and len(username) <3:
-            err.append(1)
-        else:
-            err.append(0)
-        if len(username)>20:
-            err.append(1)
-        else:
-            err.append(0)
-        if err[0]==1 or re.match('^[a-zA-Z_0-9]+$',username):
-            err.append(0)
-        else:
-            err.append(1)
-        if len(firstname)>20:
-            err.append(1)
-        else:
-            err.append(0)
-
-        if len(lastname)>20:
-            err.append(1)
-        else:
-            err.append(0)
-
-        if err[3]!=1 and len(password)<8:
-            err.append(1)
-        else:
-            err.append(0)
-        if err[3]==1 or (re.search(r'[a-zA-Z]+',password) and re.search(r'[0-9]+',password)):
-            err.append(0)
-        else:
-            err.append(1)
-        if err[3]==1 or re.match('^[a-zA-Z_0-9]+$',password):
-            err.append(0)
-        else:
-            err.append(1)
-        if password==pw_verify:
-            err.append(0)
-        else:
-            err.append(1)
-
-        if err[4]==0 and (not re.match(r"[^@]+@[^@]+\.[^@]+",email)):
-            err.append(1)
-        else:
-            err.append(0)
-        if len(email)>20:
-            err.append(1)
-        else:
-            err.append(0)
-
-        if err!=correct:
-            return render_template("user.html",error=err)
-        else:
-            conn = extensions.connect_to_database()
-            cursor = conn.cursor()
-            algorithm='sha512'
-            salt=uuid.uuid4().hex
-            m=hashlib.new(algorithm)
-            m.update(salt+password)
-            password_hash=m.hexdigest()
-            new_hash="$".join([algorithm,salt,password_hash])
-            sql1='insert into User(username,firstname,lastname,password,email) values("%s","%s","%s","%s","%s")' %(username,firstname,lastname,new_hash,email)
-            cursor.execute(sql1)
-            cursor.close()
-            conn.close()
-            return redirect(url_for('main.main_login'))
+    if 'username' in session:
+        return redirect(url_for('main.main_user_edit'))
     else:
-        return render_template("user.html",error=correct)
+        return render_template("user.html")
+    
 
 @main.route('/user/edit',methods=['POST','GET'])
 def main_user_edit():
+    if not 'username' in session:
+        return redirect(url_for('main.main_login'))
+        
+    conn = extensions.connect_to_database()
+    cursor = conn.cursor()
+    sql2='select firstname, lastname, username from User'
+    cursor.execute(sql2)
+    rows=cursor.fetchall()
+    firstname=[]
+    lastname=[]
+    user=[]
+    for row in rows:
+        firstname.append(row[0])
+        lastname.append(row[1])
+        user.append(row[2])
+    cursor.close()
+    conn.close()
+    
     if request.method == 'GET':
-        return render_template("user_edit.html", error=[0,0])
-
+        if 'username' in session:
+            return render_template("user_edit.html", zips=zip(firstname,lastname,user),error=[0,0])
+        else:
+            return redirect(url_for('main.main_login'))
     if request.method == 'POST':
         err=[0,0,0,0,0,0,0,0]
         correct=[0,0,0,0,0,0,0,0]
         username=session['username']
         conn = extensions.connect_to_database()
         cursor = conn.cursor()
+        
         if 'firstname' in request.form:
             firstname=request.form['firstname']
             
@@ -272,8 +189,6 @@ def main_user_edit():
                 err[0]=0
                 sql='update User set firstname="%s" where username="%s"' %(firstname,username)
                 cursor.execute(sql)
-                conn.close()
-                cursor.close()
         elif 'lastname' in request.form:
             lastname=request.form['lastname']
             if len(lastname)>20:
@@ -282,8 +197,6 @@ def main_user_edit():
                 err[1]=0
                 sql='update User set lastname="%s" where username="%s"' %(lastname,username)
                 cursor.execute(sql)
-                conn.close()
-                cursor.close()
             
         elif 'email' in request.form:
             email=request.form['email']
@@ -295,14 +208,12 @@ def main_user_edit():
                 err[7]=1
             else:
                 err[7]=0
-            if err[6:7]==[0,0]:  
+            if err[6]==0 and err[7]==0:  
                 sql='update User set email="%s" where username="%s"' %(email,username)
                 cursor.execute(sql)
-                conn.close()
-                cursor.close()
-        elif 'pw1' in request.form and 'pw2' in request.form:
-            password=request.form['pw1']
-            pw_verify=request.form['pw2']
+        elif 'password1' in request.form and 'password2' in request.form:
+            password=request.form['password1']
+            pw_verify=request.form['password2']
             if len(password)<8:
                 err[2]=1
             else:
@@ -320,30 +231,44 @@ def main_user_edit():
             else:
                 err[5]=1
                     
-            if err[2:5]==[0,0,0,0]:
+            if err[2]==0 and err[3]==0 and err[4]==0 and err[5]==0: 
                 algorithm='sha512'
                 salt=uuid.uuid4().hex
                 m=hashlib.new(algorithm)
                 m.update(salt+password)
                 password_hash=m.hexdigest()
                 new_hash="$".join([algorithm,salt,password_hash])
-                sql='update User set password="%s" where username="%s"' %(newhash,username)
+                sql='update User set password="%s" where username="%s"' %(new_hash,username)
                 cursor.execute(sql)
-                conn.close()
-                cursor.close()
-            
+                
+        sql2='select firstname, lastname, username from User'
+        cursor.execute(sql2)
+        rows=cursor.fetchall()
+        firstname=[]
+        lastname=[]
+        user=[]
+        for row in rows:
+            firstname.append(row[0])
+            lastname.append(row[1])
+            user.append(row[2])   
+        cursor.close()
+        conn.close()
         if err!=correct:
-            return render_template("user_edit.html",error=err)
+            return render_template("user_edit.html", zips=zip(firstname,lastname,user),error=err)
         else:
-            return render_template("user_edit.html",error=correct)
+            return render_template("user_edit.html", zips=zip(firstname,lastname,user),error=correct)
         
     else:
-        return render_template("user_edit.html",error=correct)
+        return render_template("user_edit.html", zips=zip(firstname,lastname,user),error=correct)
 
-@main.route('/user/logout',methods=['POST'])
+@main.route('/logout',methods=['POST'])
 def main_logout():
     if request.method == 'POST':
-        session.clear()
+        session.pop('username', None)
         return redirect(url_for('main.main_route'))
     else:
         abort(404)
+        
+@main.app_errorhandler(403)
+def page_not_found(error):
+    return render_template( "forbidden.html" ), 403

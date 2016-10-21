@@ -12,9 +12,9 @@
       {% endif %}
     {% endfor %}
     <p>
-    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit your account</a>
-    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My albums</a>
-    <a id="nav_home" href="{{url_for('main.main_route')}}">Home</a>
+    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit Account</a>
+    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My Albums</a>
+    <a id="nav_home" href="{{url_for('main.main_route')}}">Nav Home</a>
     <form action="{{url_for('main.main_logout')}}" method="post">
       <input id="nav_logout" type="submit" value="Logout">
     </form>
@@ -39,7 +39,12 @@
       <br><br>
       <p>Public Albums:</p>
       {% for albumid, username, title in links %}
-        <a id="album_{{albumid}}" href="{{url_for('albums.albums_route', username = username)}}"><h1 style="font-size: 20px">{{title}}</h1></a>
+        <a id="album_{{albumid}}_link" href="{{url_for('album.album_route', albumid = albumid)}}"><h1 style="font-size: 20px">{{title}}</h1></a>
+      {% endfor %}
+      <br><br>
+      <p>Users of Public Albums:</p>
+      {% for albumid, username, title in links %}
+        <a href="{{url_for('albums.albums_route', username = username)}}"><h1 style="font-size: 20px">{{username}}</h1></a>
       {% endfor %}
     {% endif %}
 </body>
