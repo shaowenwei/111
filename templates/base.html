@@ -7,7 +7,26 @@
     -->
     <title>EECS485</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.js"></script>
-</head>
+    <script type="text/javascript" src="{{url_for('static', filename='js/logout.js')}}"></script>
+    <div align="center">
+    {% if session['username']%}
+    {% for fn, ln, user in zips %}
+      {% if user==session['username'] %}
+      <p style="font-size: 20px"> Logged in as <strong>{{fn}} {{ln}} </strong></p>
+      {% endif %}
+    {% endfor %}
+    <p>
+    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit Account</a>
+    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My Albums</a>
+    <a id="nav_home" href="{{url_for('main.main_route')}}">Nav Home</a>
+    <form action="{{url_for('main.main_logout')}}" method="post">
+      <!--<input id="nav_logout" type="submit" value="Logout">!-->
+      <p><button id="nav_logout" type = "button">Logout</button></p>
+    </form>
+    </p>
+    {%endif%}
+    </div>
+	</head>
 
 <body>
   <div class="center">
