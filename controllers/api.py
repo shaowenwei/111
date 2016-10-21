@@ -236,4 +236,11 @@ def login():
                     ]
             }
             return jsonify(error=error)
-    
+   
+@api.route('/api/v1/logout', methods=['POST'])
+def logout():
+    if request.method == 'POST':
+        session.pop('username', None)
+        return '',204
+    else:
+        abort(404)
