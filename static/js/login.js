@@ -1,5 +1,5 @@
 $(function(){
-  $('button').click(function(){
+  $('#login_submit').click(function(){
     var username = $('#login_username_input').val();
     var password = $('#login_password_input').val();
     $.ajax({
@@ -13,12 +13,14 @@ $(function(){
       {
         $(location).attr('href','albums');
       }
-      else
-      {$("#errors").text(res['error'].errors[0].message);}
+      /*else
+      {$("#errors").text(res['error'].errors[0].message);}*/
       
       },
       error: function(error){
-      console.log(error);
+      res=JSON.parse(error.response);
+        $("#errors").text(res['error'].errors[0].message);
+        console.log(error);
       }
     });
   });
