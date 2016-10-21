@@ -163,4 +163,77 @@ def query():
                 "email": email
                 }
             return jsonify(ret_data=ret_data), 201
+        
+       
+@api.route('/api/v1/login', methods=['POST'])
+def login():
+        
+    if request.method == 'POST':
+        username=""
+        password=""
+        if 'username' in request.form and 'password' in request.form:           
+            username=request.form['username']
+            password=request.form['password']
+        else:
+            error={
+                "errors":[
+                    {
+                        "message":"You did not provide the necessary fields", "code":"422"
+                    }
+                ]
+            }
+            return jsonify(error=error)
+
+        conn = extensions.connect_to_database()
+        cursor=conn.cursor()
+        sql1='select username from User'
+        cursor.execute(sql1)
+        row=cursor.fetchall()
+        flag=0
+        for ro in row:
+            for r in ro:
+                if r == username:
+                    flag=1
+        if flag == 0:
+            error={
+                    "errors":[
+                        {
+                            "message":"Username does not exist", "code":"404"
+                        }
+                    ]
+            }
+            return jsonify(error=error)
+        sql='select password from User where username="%s"' %username
+        cursor.execute(sql)
+        row=cursor.fetchall()
+        cursor.close()
+        conn.close()
+        passdb=''
+        algorithm='sha512'
+        for ro in row:
+            for r in ro:
+                passdb=r
+        j=0
+        loc=[]
+        for i in passdb:
+            if i=='$':
+                loc.append(j)
+            j=j+1
+        salt=passdb[((loc[0])+1):((loc[1]))]
+        m=hashlib.new(algorithm)
+        m.update(salt+password)
+        password_hash=m.hexdigest()
+        new_hash="$".join([algorithm,salt,password_hash])
+        if new_hash==passdb:
+            session['username']=username
+            return jsonify(error={"username":username})
+        else:
+            error={
+                    "errors":[
+                        {
+                            "message":"Password is incorrect for the specified username", "code":"422"
+                        }
+                    ]
+            }
+            return jsonify(error=error)
     
