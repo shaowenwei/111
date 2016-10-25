@@ -8,53 +8,49 @@ api = Blueprint('api', __name__, template_folder='templates', static_folder ='st
 
 @api.route('/api/v1/user', methods=['GET','POST'])
 def query():
-    correct=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     if request.method == "GET":
-        username=request.args.get("username")
-        password=request.args.get("password")
-        ret_data={
-            "username": username,
-            "firstname": firstname,
-            "lastname": lastname,
-            "email": email
-            }
         if 'username' in session:
+            username=session['username']
+            conn=extensions.connect_to_database()
+            cursor=conn.cursor
+            sql1='select firstname, lastname, email from User where username="%s"' %username
+            cursor.execute(sql1)
+            rows=cursor.fetchall()
+            firstname=[]
+            lastname=[]
+            email=[]
+            for row in rows:
+                firstname.append(row[0])
+                lastname.append(row[1])
+                email.append(row[2])
+            ret_data={
+                "username": username,
+                "firstname": firstname,
+                "lastname": lastname,
+                "email": email
+                }
             return jsonify(ret_data=ret_data)
         
     if request.method == 'POST':
-        username=request.form['username']
-        firstname=request.form['firstname']
-        lastname=request.form['lastname']
-        password=request.form['password1']
-        pw_verify=request.form['password2']
-        email=request.form['email']
-        err=[]
+        content=request.json
+        if (content['username']!="") and (content['firstname']!="") and (content['lastname']!="") and (content['password1']!="") and (content['password2']!="") and (content['email']!=""):
+            username=content['username']
+            firstname=content['firstname']
+            lastname=content['lastname']
+            password=content['password1']
+            pw_verify=content['password2']
+            email=content['email']
+        else:
+            error_data={   
+                "errors": [
+                    {
+                        "message":"You did not provide the necessary fields"
+                    }
+                ]
+            }
+            return jsonify(error=error_data), 422
+
         error=[]
-        if username=="":
-            err.append(1)
-            error.append("Username may not be left blank")
-        else:
-            err.append(0)
-        if firstname=="":
-            err.append(1)
-            error.append("Firstname may not be left blank")
-        else:
-            err.append(0)
-        if lastname=="":
-            err.append(1)
-            error.append("Lastname may not be left blank")
-        else:
-            err.append(0)
-        if password=="":
-            err.append(1)
-            error.append("Password1 may not be left blank")
-        else:
-            err.append(0)
-        if email=="":
-            err.append(1)
-            error.append("Email may not be left blank")
-        else:
-            err.append(0)
         conn = extensions.connect_to_database()
         cursor = conn.cursor()
         sql2='select username from User'
@@ -64,84 +60,60 @@ def query():
         for row in rows:
             for ro in row:
                 if username==ro:
-                    flag=flag+1        
+                    flag=flag+1
         if flag >=1:
-            err.append(1)
-            error.append("This username is taken")
-        else:
-            err.append(0)
+            message={"message":"This username is taken"}
+            error.append(message)
+            
         if len(username) <3:
-            err.append(1)
-            error.append("Usernames must be at least 3 characters long")
-        else:
-            err.append(0)
+            message={"message":"Usernames must be at least 3 characters long"}
+            error.append(message)
+
         if len(username)>20:
-            err.append(1)
-            error.append("Username must be no longer than 20 characters")
-        else:
-            err.append(0)
-        if re.match('^[a-zA-Z_0-9]+$',username):
-            err.append(0)
-        else:
-            err.append(1)
-            error.append("Usernames may only contain letters, digits, and underscores")
+            message={"message":"Username must be no longer than 20 characters"}
+            error.append(message)
+
+        if not re.match('^[a-zA-Z_0-9]+$',username):
+            message={"message":"Usernames may only contain letters, digits, and underscores"}
+            error.append(message)
+            
         if len(firstname)>20:
-            err.append(1)
-            error.append("Firstname must be no longer than 20 characters")
-        else:
-            err.append(0)
+            message={"message":"Firstname must be no longer than 20 characters"}
+            error.append(message)
 
         if len(lastname)>20:
-            err.append(1)
-            error.append("Lastname must be no longer than 20 characters")
-        else:
-            err.append(0)
+            message={"message":"Lastname must be no longer than 20 characters"}
+            error.append(message)
             
         if len(password)<8:
-            err.append(1)
-            error.append("Passwords must be at least 8 characters long")
-        else:
-            err.append(0)
+            message={"message":"Passwords must be at least 8 characters long"}
+            error.append(message)
             
-        if (re.search(r'[a-zA-Z]+',password) and re.search(r'[0-9]+',password)):
-            err.append(0)
-        else:
-            err.append(1)
-            error.append("Passwords must contain at least one letter and one number")
+        if not ((re.search(r'[a-zA-Z]+',password) and re.search(r'[0-9]+',password))):
+            message={"message":"Passwords must contain at least one letter and one number"}
+            error.append(message)
             
-        if re.match('^[a-zA-Z_0-9]+$',password):
-            err.append(0)
-        else:
-            err.append(1)
-            error.append("Passwords may only contain letters, digits, and underscores")
+        if not re.match('^[a-zA-Z_0-9]+$',password):
+            message={"message":"Passwords may only contain letters, digits, and underscores"}
+            error.append(message)
             
-        if password==pw_verify:
-            err.append(0)
-        else:
-            err.append(1)
-            error.append("Passwords do not match")
+        if password != pw_verify:
+            message={"message":"Passwords do not match"}
+            error.append(message)
             
         if (not re.match(r"[^@]+@[^@]+\.[^@]+",email)):
-            err.append(1)
-            error.append("Email address must be valid")
-        else:
-            err.append(0)
+            message={"message":"Email address must be valid"}
+            error.append(message)
             
         if len(email)>40:
-            err.append(1)
-            error.append("Email must be no longer than 40 characters")
-        else:
-            err.append(0)
+            message={"message":"Email must be no longer than 40 characters"}
+            error.append(message)
 
-        if err!=correct:
-            ret_data={
-                "username": username,
-                "firstname": firstname,
-                "lastname": lastname,
-                "email": email,
-                "error": error
+        if error!=[]:
+            error_data={
+                "errors": error
                 }
-            return jsonify(ret_data=ret_data), 201
+            return jsonify(error=error_data), 422
         else:
             conn = extensions.connect_to_database()
             cursor = conn.cursor()
@@ -164,16 +136,112 @@ def query():
                 }
             return jsonify(ret_data=ret_data), 201
         
+    if request.method == "PUT":
+        if 'username' in session:
+            error=[]
+            username=session['username']
+            conn = extensions.connect_to_database()
+            cursor = conn.cursor()
+            content=request.json
+            firstname=content['firstname']
+            lastname=content['lastname']
+            password=content['password1']
+            pw_verify=content['password2']
+            email=content['email']
+            
+            if firstname != "":
+                if len(firstname)>20:
+                    message={"message":"Firstname must be no longer than 20 characters"}
+                    error.append(message)
+                else:
+                    sql='update User set firstname="%s" where username="%s"' %(firstname,username)
+                    cursor.execute(sql)
+                
+            if lastname !="":
+                if len(lastname)>20:
+                    message={"message":"Lastname must be no longer than 20 characters"}
+                    error.append(message)
+                else:
+                    sql='update User set lastname="%s" where username="%s"' %(lastname,username)
+                    cursor.execute(sql)
+                
+            if email != "":
+                err=[0,0]
+                if not re.match(r"[^@]+@[^@]+\.[^@]+",email):
+                    message={"message":"Email address must be valid"}
+                    error.append(message)
+                else:
+                    err[0]=0
+                if len(email)>40:
+                    message={"message":"Email must be no longer than 40 characters"}
+                    error.append(message)
+                else:
+                    err[1]=0
+                if err[0]==0 and err[1]==0:  
+                    sql='update User set email="%s" where username="%s"' %(email,username)
+                    cursor.execute(sql)
+                    
+            if password != "" and pw_verify != "":
+                err=[0,0,0,0]
+                if len(password)<8:
+                    message={"message":"Passwords must be at least 8 characters long"}
+                    error.append(message)
+                else:
+                    err[0]=0
+                if re.search(r'[a-zA-Z]+',password) and re.search(r'[0-9]+',password):
+                    err[1]=0
+                else:
+                    message={"message":"Passwords must contain at least one letter and one number"}
+                    error.append(message)
+                if re.match('^[a-zA-Z_0-9]+$',password):
+                    err[2]=0
+                else:
+                    message={"message":"Passwords may only contain letters, digits, and underscores"}
+                    error.append(message)
+                if password==pw_verify:
+                    err[3]=0
+                else:
+                    message={"message":"Passwords do not match"}
+                    error.append(message)
+                        
+                if err[0]==0 and err[1]==0 and err[2]==0 and err[3]==0: 
+                    algorithm='sha512'
+                    salt=uuid.uuid4().hex
+                    m=hashlib.new(algorithm)
+                    m.update(salt+password)
+                    password_hash=m.hexdigest()
+                    new_hash="$".join([algorithm,salt,password_hash])
+                    sql='update User set password="%s" where username="%s"' %(new_hash,username)
+                    cursor.execute(sql)
+            if error!=[]:
+                error_data={
+                    "errors": error
+                    }
+                return jsonify(error=error_data), 422
+            else:
+                return "", 201
+        else:
+            error_data={
+                "errors":[
+                    {
+                        "message":"You do not have the necessary credentials for the resource"
+                    }
+                ]
+            }
+            return jsonify(error=error_data), 401
+            
+        
        
 @api.route('/api/v1/login', methods=['POST'])
 def login():
         
     if request.method == 'POST':
+        content=request.json
         username=""
         password=""
-        if 'username' in request.form and 'password' in request.form:           
-            username=request.form['username']
-            password=request.form['password']
+        if 'username' in content and 'password' in content:           
+            username=content['username']
+            password=content['password']
         else:
             error={
                 "errors":[
@@ -240,7 +308,18 @@ def login():
 @api.route('/api/v1/logout', methods=['POST'])
 def logout():
     if request.method == 'POST':
-        session.pop('username', None)
-        return '',204
+        if 'username' in session:           
+            session.pop('username', None)
+            return '',204
+        else:
+            error={
+                    "errors":[
+                        {
+                            "message":"You do not have the necessary credentials for the resource"
+                        }
+                    ]
+            }
+            return jsonify(error=error),401
     else:
         abort(404)
+    
