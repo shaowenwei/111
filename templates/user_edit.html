@@ -4,21 +4,7 @@
   <head>
   <script type="text/javascript" src="{{url_for('static', filename='js/user_edit.js')}}"></script>
   <style> p.error {color:red;}</style>
-  {% if session['username']%}
-    {% for fn, ln, user in zips %}
-      {% if user==session['username'] %}
-      <p style="font-size: 20px"> Logged in as <strong>{{fn}} {{ln}} </strong></p>
-      {% endif %}
-    {% endfor %}
-    <p>
-    <a id="nav_edit" href="{{url_for('main.main_user_edit')}}">Edit Account</a>
-    <a id="nav_albums" href="{{url_for('albums.albums_route')}}">My Albums</a>
-    <a id="nav_home" href="{{url_for('main.main_route')}}">Nav Home</a>
-    <form action="{{url_for('main.main_logout')}}" method="post">
-      <input id="nav_logout" type="submit" value="Logout">
-    </form>
-    </p>
-  {% endif %}
+  
   </head>
   <body>
   <fieldset>
