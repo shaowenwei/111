@@ -84,7 +84,7 @@ def page_not_found(error):
 def main_login():
     if request.method == 'GET':
         if 'username' in session:
-            return redirect(url_for('main.main_route'))
+            return redirect(url_for('main.main_user_edit'))
         else:
             return render_template("login.html", error=[0,0,0,0])
     if request.method == 'POST':
@@ -167,99 +167,8 @@ def main_user_edit():
         user.append(row[2])
     cursor.close()
     conn.close()
-    
-    if request.method == 'GET':
-        if 'username' in session:
-            return render_template("user_edit.html", zips=zip(firstname,lastname,user),error=[0,0])
-        else:
-            return redirect(url_for('main.main_login'))
-    if request.method == 'POST':
-        err=[0,0,0,0,0,0,0,0]
-        correct=[0,0,0,0,0,0,0,0]
-        username=session['username']
-        conn = extensions.connect_to_database()
-        cursor = conn.cursor()
-        
-        if 'firstname' in request.form:
-            firstname=request.form['firstname']
-            
-            if len(firstname)>20:
-               err[0]=1
-            else:
-                err[0]=0
-                sql='update User set firstname="%s" where username="%s"' %(firstname,username)
-                cursor.execute(sql)
-        elif 'lastname' in request.form:
-            lastname=request.form['lastname']
-            if len(lastname)>20:
-                err[1]=1
-            else:
-                err[1]=0
-                sql='update User set lastname="%s" where username="%s"' %(lastname,username)
-                cursor.execute(sql)
-            
-        elif 'email' in request.form:
-            email=request.form['email']
-            if not re.match(r"[^@]+@[^@]+\.[^@]+",email):
-                err[6]=1
-            else:
-                err[6]=0
-            if len(email)>40:
-                err[7]=1
-            else:
-                err[7]=0
-            if err[6]==0 and err[7]==0:  
-                sql='update User set email="%s" where username="%s"' %(email,username)
-                cursor.execute(sql)
-        elif 'password1' in request.form and 'password2' in request.form:
-            password=request.form['password1']
-            pw_verify=request.form['password2']
-            if len(password)<8:
-                err[2]=1
-            else:
-                err[2]=0
-            if re.search(r'[a-zA-Z]+',password) and re.search(r'[0-9]+',password):
-                err[3]=0
-            else:
-                err[3]=1
-            if re.match('^[a-zA-Z_0-9]+$',password):
-                err[4]=0
-            else:
-                err[4]=1
-            if password==pw_verify:
-                err[5]=0
-            else:
-                err[5]=1
-                    
-            if err[2]==0 and err[3]==0 and err[4]==0 and err[5]==0: 
-                algorithm='sha512'
-                salt=uuid.uuid4().hex
-                m=hashlib.new(algorithm)
-                m.update(salt+password)
-                password_hash=m.hexdigest()
-                new_hash="$".join([algorithm,salt,password_hash])
-                sql='update User set password="%s" where username="%s"' %(new_hash,username)
-                cursor.execute(sql)
-                
-        sql2='select firstname, lastname, username from User'
-        cursor.execute(sql2)
-        rows=cursor.fetchall()
-        firstname=[]
-        lastname=[]
-        user=[]
-        for row in rows:
-            firstname.append(row[0])
-            lastname.append(row[1])
-            user.append(row[2])   
-        cursor.close()
-        conn.close()
-        if err!=correct:
-            return render_template("user_edit.html", zips=zip(firstname,lastname,user),error=err)
-        else:
-            return render_template("user_edit.html", zips=zip(firstname,lastname,user),error=correct)
-        
-    else:
-        return render_template("user_edit.html", zips=zip(firstname,lastname,user),error=correct)
+   
+    return render_template("user_edit.html", zips=zip(firstname,lastname,user))
 
 @main.route('/logout',methods=['POST'])
 def main_logout():
