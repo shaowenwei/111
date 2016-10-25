@@ -6,7 +6,7 @@ $(function(){
       data: {},
       success: function(response){
       console.log(response);
-     $(location).attr('href','');
+     $(location).attr('href','/hd1qzdkp/p3');
       
       },
       error: function(error){
