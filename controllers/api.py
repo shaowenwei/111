@@ -6,7 +6,7 @@ import re
 
 api = Blueprint('api', __name__, template_folder='templates', static_folder ='static')
 
-@api.route('/api/v1/user', methods=['GET','POST'])
+@api.route('/api/v1/user', methods=['GET','POST','PUT'])
 def query():
     if request.method == "GET":
         if 'username' in session:
