@@ -9,11 +9,11 @@
 </header>
 <body>
   <br><br>
+  {% if session['username']%}
     {% for albumid, title in link %}
     <a id="album_{{albumid}}" href="{{url_for('album.album_route', albumid = albumid)}}"><h1 style="font-size: 20px">{{title}}</h1></a>
     {% endfor %}
-
-<body>
+  {% else %}
     <h1 style="font-size:40px ; font-family:Arial">Online Album</h1>
     <p style="font-size:20px; font-family:Arial">
       Welcome!
@@ -33,9 +33,9 @@
       {% for albumid, username, title in links %}
         <a href="{{url_for('albums.albums_route', username = username)}}"><h1 style="font-size: 20px">{{username}}</h1></a>
       {% endfor %}
- 
+  {% endif %}
 </body>
-<footer>
+<footer> 
   <br><br><br><br>
   <p>All rights reserved by EECS485 Group 75</p>
 </footer></div>
