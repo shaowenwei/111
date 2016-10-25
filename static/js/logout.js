@@ -1,5 +1,5 @@
 $(function(){
-  $('button').click(function(){
+  $('#nav_logout').click(function(){
     $.ajax({
       url: '/hd1qzdkp/p3/api/v1/logout',
       type: 'POST',
