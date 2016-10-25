@@ -28,6 +28,10 @@ $(function(){
     {
       message.push("Passwords may only contain letters, digits, and underscores");
     }
+    if (password1!=password2)
+    {
+      message.push("Passwords do not match");
+    }
     if (email.length>40)
     {
       message.push("Email must be no longer than 40 characters");
