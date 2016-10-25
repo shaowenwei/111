@@ -148,7 +148,7 @@ def main_user():
         return render_template("user.html")
     
 
-@main.route('/user/edit',methods=['POST','GET'])
+@main.route('/user/edit')
 def main_user_edit():
     if not 'username' in session:
         return redirect(url_for('main.main_login'))
@@ -167,9 +167,8 @@ def main_user_edit():
         user.append(row[2])
     cursor.close()
     conn.close()
-   
     return render_template("user_edit.html", zips=zip(firstname,lastname,user))
-
+   
 @main.route('/logout',methods=['POST'])
 def main_logout():
     if request.method == 'POST':
