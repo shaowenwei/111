@@ -3,18 +3,8 @@
 <style> p.error {color:red;}</style>
 <div align="center">
  <head>
-  {% if error[0]==1 %}
-    <p class="error">Username may not be left blank</p>
-  {% endif %}
-  {% if error[1]==1 %}
-    <p class="error">Password may not be left blank</p>
-  {% endif %}
-  {% if error[2]==1 %}
-    <p class="error">Username does not exist</p>
-  {% endif %}
-  {% if error[3]==1 %}
-    <p class="error">Password is incorrect for the specified username</p>
-  {% endif %}
+  <script type="text/javascript" src="{{url_for('static', filename='js/login.js')}}"></script>
+
  </head>
  <form action = "{{url_for('main.main_login')}}" method = "post">
     <fieldset>
@@ -22,7 +12,9 @@
 
       <p>username:<input id="login_username_input" type = "text" name = "username"/></p>
       <p>password:<input id="login_password_input" type = "password" name = "password"/></p>
-      <p><input id="login_submit" type = "submit" value = "submit" /></p>        
+      <!--<p><input id="login_submit" type = "submit" value = "submit" /></p> -->
+      <p><button id="login_submit" type = "button">submit</button></p>  
+      <p class="error" id="errors"></p>     
       </fieldset>
     </form>
 </div>
