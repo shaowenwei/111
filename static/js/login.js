@@ -25,7 +25,7 @@ $(function(){
           $(location).attr('href','/hd1qzdkp/p3'+newurl);
         }
         else{
-          $(location).attr('href','albums');
+          $(location).attr('href','/hd1qzdkp/p3');
         }
         
       },
